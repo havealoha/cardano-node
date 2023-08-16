@@ -66,14 +66,14 @@ in with final;
 
   cabal = haskell-nix.cabal-install.${compiler-nix-name};
 
-  hlint = haskell-nix.tool compiler-nix-name "hlint" {
-    version = {ghc8107 = "3.4.1";}.${compiler-nix-name} or "3.5";
-    index-state = "2023-01-20T05:50:56Z";
-  };
+  # hlint = haskell-nix.tool compiler-nix-name "hlint" {
+  #   version = {ghc962 = "3.6.1";}.${compiler-nix-name} or {ghc8107 = "3.4.1";}.${compiler-nix-name} or "3.5";
+  #   index-state = "2023-08-05T00:00:00Z";
+  # };
 
   ghcid = haskell-nix.tool compiler-nix-name "ghcid" {
     version = "0.8.7";
-    index-state = "2023-01-20T05:50:56Z";
+    index-state = "2023-08-05T00:00:00Z";
   };
 
   haskell-language-server = haskell-nix.tool compiler-nix-name "haskell-language-server" rec {
@@ -84,7 +84,7 @@ in with final;
 
   haskellBuildUtils = prev.haskellBuildUtils.override {
     inherit compiler-nix-name;
-    index-state = "2023-01-20T05:50:56Z";
+    index-state = "2023-08-05T00:00:00Z";
   };
 
   cardanolib-py = callPackage ./cardanolib-py { };

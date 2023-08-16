@@ -118,7 +118,7 @@ in project.shellFor {
     tmux
     pkgs.cairo
     pkgs.git
-    pkgs.hlint
+    # pkgs.hlint
     pkgs.moreutils
     pkgs.pstree
     pkgs.time

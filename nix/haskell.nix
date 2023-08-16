@@ -20,9 +20,9 @@ let
     {
       src = ../.;
       name = "cardano-node";
-      compiler-nix-name = lib.mkDefault "ghc8107";
+      compiler-nix-name = lib.mkDefault "ghc962";
       # extra-compilers
-      flake.variants = lib.genAttrs ["ghc927"] (x: {compiler-nix-name = x;});
+      flake.variants = lib.genAttrs ["ghc927" "ghc8107"] (x: {compiler-nix-name = x;});
       cabalProjectLocal = ''
         repository cardano-haskell-packages-local
           url: file:${CHaP}
@@ -44,7 +44,7 @@ let
         nativeBuildInputs = with pkgs.pkgsBuildBuild; [
           nix-prefetch-git
           pkg-config
-          hlint
+          # hlint
           ghcid
           haskell-language-server
           cabal
