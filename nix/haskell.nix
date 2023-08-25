@@ -120,7 +120,8 @@ let
           })
           ({ lib, pkgs, ...}: lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
             # Remvoe this once mingwx is mapped to null in haskell.nix (haskell.nix#2032), and we bumped _past_ that.
-            packages.unix-time.components.library.libs = lib.mkForce [ ];
+            # we need to plugin in pthreads as force overrides https://github.com/input-output-hk/haskell.nix/blob/9823e12d5b6e66150ddeea146aea682f44ee4d44/overlays/windows.nix#L109.
+            packages.unix-time.components.library.libs = lib.mkForce [ pkgs.windows.mingw_w64_pthreads ];
           })
           ({ lib, pkgs, ... }: {
             # Needed for the CLI tests.
@@ -361,7 +362,7 @@ project.appendOverlays (with haskellLib.projectOverlays; [
       };
       eventlogged = final.appendModule
         {
-          # From 9.6+
+          # From 9.2+
           # on the commandline: error: [-Wdeprecated-flags, Werror=deprecated-flags]
           #     -eventlog is deprecated: the eventlog is now enabled in all runtime system ways
           # modules = [{
