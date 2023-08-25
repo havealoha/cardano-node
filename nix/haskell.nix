@@ -118,6 +118,10 @@ let
             packages.cardano-ledger-conway.components.library.doHaddock = false;
             packages.cardano-protocol-tpraos.components.library.doHaddock = false;
           })
+          ({ lib, pkgs, ...}: lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
+            # Remvoe this once mingwx is mapped to null in haskell.nix (haskell.nix#2032), and we bumped _past_ that.
+            packages.unix-time.components.library.libs = lib.mkForce [ ];
+          })
           ({ lib, pkgs, ... }: {
             # Needed for the CLI tests.
             # Coreutils because we need 'paste'.
