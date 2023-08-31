@@ -123,6 +123,12 @@ let
             # we need to plugin in pthreads as force overrides https://github.com/input-output-hk/haskell.nix/blob/9823e12d5b6e66150ddeea146aea682f44ee4d44/overlays/windows.nix#L109.
             packages.unix-time.components.library.libs = lib.mkForce [ pkgs.windows.mingw_w64_pthreads ];
           })
+          ({ lib, pkgs, ... }: lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
+            # lib:ghc is a bit annoying in that it comes with it's own build-type:Custom, and then tries
+            # to call out to all kinds of silly tools that GHC doesn't really provide.
+            # For this reason, we try to get away without re-installing lib:ghc for now.
+            reinstallableLibGhc = false;
+          })
           ({ lib, pkgs, ... }: {
             # Needed for the CLI tests.
             # Coreutils because we need 'paste'.

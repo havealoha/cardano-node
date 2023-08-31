@@ -15,7 +15,7 @@
       flake = false;
     };
     haskellNix = {
-      url = "github:input-output-hk/haskell.nix";
+      url = "github:input-output-hk/haskell.nix?ref=angerman/fix-win-reloc";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.hackage.follows = "hackageNix";
     };

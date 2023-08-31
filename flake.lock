@@ -266,7 +266,7 @@
           "std",
           "nixpkgs"
         ],
-        "systems": "systems"
+        "systems": "systems_2"
       },
       "locked": {
         "lastModified": 1686680692,
@@ -504,17 +504,19 @@
       }
     },
     "flake-utils_4": {
+      "inputs": {
+        "systems": "systems"
+      },
       "locked": {
-        "lastModified": 1679360468,
-        "narHash": "sha256-LGnza3cfXF10Biw3ZTg0u9o9t7s680Ww200t5KkHTh8=",
-        "owner": "hamishmack",
+        "lastModified": 1692799911,
+        "narHash": "sha256-3eihraek4qL744EvQXsK1Ha6C3CR7nnT8X2qWap4RNk=",
+        "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "e1ea268ff47ad475443dbabcd54744b4e5b9d4f5",
+        "rev": "f9e7cf818399d17d347f847525c5a5a8032e4e44",
         "type": "github"
       },
       "original": {
-        "owner": "hamishmack",
-        "ref": "hkm/nested-hydraJobs",
+        "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
       }
@@ -648,15 +650,16 @@
         "stackage": "stackage"
       },
       "locked": {
-        "lastModified": 1692319830,
-        "narHash": "sha256-KD5SPPtJETa83lWr5WwhWWRbSelGhGSkeZ7cqweJfoc=",
+        "lastModified": 1693447401,
+        "narHash": "sha256-N7j5bNrR+O2lS/vUGgdI7R6/4CIJpgWRPWqvdpxnXbU=",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "90e45988f1ad35d55e890cef16d7b1a5de5e6196",
+        "rev": "374d4bda8b9a9d77d97416a0cf01b36b5186ddf8",
         "type": "github"
       },
       "original": {
         "owner": "input-output-hk",
+        "ref": "angerman/fix-win-reloc",
         "repo": "haskell.nix",
         "type": "github"
       }
@@ -824,11 +827,11 @@
     "iserv-proxy": {
       "flake": false,
       "locked": {
-        "lastModified": 1688517130,
-        "narHash": "sha256-hUqfxSlo+ffqVdkSZ1EDoB7/ILCL25eYkcCXW9/P3Wc=",
+        "lastModified": 1691634696,
+        "narHash": "sha256-MZH2NznKC/gbgBu8NgIibtSUZeJ00HTLJ0PlWKCBHb0=",
         "ref": "hkm/remote-iserv",
-        "rev": "9151db2a9a61d7f5fe52ff8836f18bbd0fd8933c",
-        "revCount": 13,
+        "rev": "43a979272d9addc29fbffc2e8542c5d96e993d73",
+        "revCount": 14,
         "type": "git",
         "url": "https://gitlab.haskell.org/hamishmack/iserv-proxy.git"
       },
@@ -1663,11 +1666,11 @@
     "stackage": {
       "flake": false,
       "locked": {
-        "lastModified": 1692317324,
-        "narHash": "sha256-AofEuurJHrfMljrCAkMKTWBC5xGluhBZiAfHQ73224Y=",
+        "lastModified": 1693355012,
+        "narHash": "sha256-ybo240tZ9LKPKRRzKYUTxlFMP4KlrokgFMFjpVa/X98=",
         "owner": "input-output-hk",
         "repo": "stackage.nix",
-        "rev": "4812a420235589a74f9278cca81f6dbf74ffb42f",
+        "rev": "05b018ca16fa6616c2c988a7a0f2b8aad0b293b3",
         "type": "github"
       },
       "original": {
@@ -1765,6 +1768,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
