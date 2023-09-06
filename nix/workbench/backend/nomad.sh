@@ -656,7 +656,8 @@ backend_nomad() {
     # - stop-all-nodes        RUN-DIR                               (Nomad only)
     # - stop-all-tracers      RUN-DIR                               (Nomad only)
     # - fetch-logs            RUN-DIR
-    # - stop-cluster          RUN-DIR
+    # - stop-cluster-internal RUN-DIR
+    # - stop-cluster-local    RUN-DIR
     # - cleanup-cluster       RUN-DIR
     ############################################################################
     # * Functions in the backend "interface" must use `fatal` when errors!
@@ -860,8 +861,8 @@ backend_nomad() {
     ;;
 
     # All or clean up everything!
-    # Called by `scenario.sh` without exit trap (`scenario_setup_exit_trap`)!
-    stop-cluster )
+    # Called after `scenario.sh` without exit trap (`scenario_setup_exit_trap`)!
+    stop-cluster-internal )
       local usage="USAGE: wb backend $op RUN-DIR"
       local dir=${1:?$usage}; shift
       local nomad_job_name=$(jq -r ". [\"job\"] | keys[0]" "${dir}"/nomad/nomad-job.json)
@@ -878,6 +879,15 @@ backend_nomad() {
       # TODO: Show output or do something if it fails?
       wb_nomad job stop "${dir}/nomad/nomad-job.json" "${nomad_job_name}" > "$dir/nomad/job.stop.stdout" 2> "$dir/nomad/job.stop.stderr" || true
 
+      rm "${dir}"/stopping; touch "${dir}"/stopped
+    ;;
+
+    # All or clean up everything!
+    # Called after `scenario.sh` without exit trap (`scenario_setup_exit_trap`)!
+    stop-cluster-local )
+      local usage="USAGE: wb backend $op RUN-DIR"
+      local dir=${1:?$usage}; shift
+
       local nomad_agents_were_already_running=$(envjqr 'nomad_agents_were_already_running')
       if test "$nomad_agents_were_already_running" = "false"
       then
@@ -893,8 +903,6 @@ backend_nomad() {
 
       local oci_image_was_already_available=$(envjqr 'oci_image_was_already_available')
       #TODO: Remove it?
-
-      rm "${dir}"/stopping; touch "${dir}"/stopped
     ;;
 
     # Called by `scenario.sh` without exit trap (`scenario_setup_exit_trap`)!
