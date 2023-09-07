@@ -122,6 +122,13 @@ let
             # Remvoe this once mingwx is mapped to null in haskell.nix (haskell.nix#2032), and we bumped _past_ that.
             # we need to plugin in pthreads as force overrides https://github.com/input-output-hk/haskell.nix/blob/9823e12d5b6e66150ddeea146aea682f44ee4d44/overlays/windows.nix#L109.
             packages.unix-time.components.library.libs = lib.mkForce [ pkgs.windows.mingw_w64_pthreads ];
+            packages.unix-time.postPatch = ''
+              sed -i 's/mingwex//g' unix-time.cabal
+            '';
+            # For these two packages the custom setups fail, as we end up with multiple instances of
+            # lib:Cabal. Likely a haskell.nix bug.
+            packages.entropy.package.buildType = lib.mkForce "Simple";
+            packages.HsOpenSSL.package.buildType = lib.mkForce "Simple";
           })
           ({ lib, pkgs, ... }: lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
             # lib:ghc is a bit annoying in that it comes with it's own build-type:Custom, and then tries
