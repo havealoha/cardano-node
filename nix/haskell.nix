@@ -44,7 +44,7 @@ let
         nativeBuildInputs = with pkgs.pkgsBuildBuild; [
           nix-prefetch-git
           pkg-config
-          # hlint
+          hlint
           ghcid
           haskell-language-server
           cabal
@@ -383,10 +383,10 @@ project.appendOverlays (with haskellLib.projectOverlays; [
           # From 9.2+
           # on the commandline: error: [-Wdeprecated-flags, Werror=deprecated-flags]
           #     -eventlog is deprecated: the eventlog is now enabled in all runtime system ways
-          # modules = [{
-          #   packages = final.pkgs.lib.genAttrs [ "cardano-node" ]
-          #     (name: { configureFlags = [ "--ghc-option=-eventlog" ]; });
-          # }];
+          modules = [({ lib, pkgs, ... }: lib.mkIf (builtins.compareVersions config.compiler.version "9.2" < 0): {
+            packages = final.pkgs.lib.genAttrs [ "cardano-node" ]
+              (name: { configureFlags = [ "--ghc-option=-eventlog" ]; });
+          })];
         };
       # add passthru and gitrev to hsPkgs:
       hsPkgs = lib.mapAttrsRecursiveCond (v: !(lib.isDerivation v))

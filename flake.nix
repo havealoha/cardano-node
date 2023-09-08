@@ -169,9 +169,9 @@
           ))
           # checks run on default system only;
           // (optionalAttrs (system == defaultSystem) {
-          # hlint = pkgs.callPackage pkgs.hlintCheck {
-          #   inherit (project.args) src;
-          # };
+          hlint = pkgs.callPackage pkgs.hlintCheck {
+            inherit (project.args) src;
+          };
         });
 
         exes = (collectExes project) // {
@@ -344,7 +344,7 @@
               "musl\\.(.*\\.)?tx-generator.*"
               "musl\\.(.*\\.)?gen-plutus.*"
               # hlint required status is controled via the github action:
-              # "native\\.(.*\\.)?checks/hlint"
+              "native\\.(.*\\.)?checks/hlint"
               #system-tests are build and run separately:
               "native\\.(.*\\.)?system-tests"
             ] ++

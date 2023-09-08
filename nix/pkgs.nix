@@ -66,10 +66,10 @@ in with final;
 
   cabal = haskell-nix.cabal-install.${compiler-nix-name};
 
-  # hlint = haskell-nix.tool compiler-nix-name "hlint" {
-  #   version = {ghc962 = "3.6.1";}.${compiler-nix-name} or {ghc8107 = "3.4.1";}.${compiler-nix-name} or "3.5";
-  #   index-state = "2023-08-05T00:00:00Z";
-  # };
+  hlint = haskell-nix.tool compiler-nix-name "hlint" {
+    version = {ghc962 = "3.6.1";}.${compiler-nix-name} or {ghc8107 = "3.4.1";}.${compiler-nix-name} or "3.5";
+    index-state = "2023-08-05T00:00:00Z";
+  };
 
   ghcid = haskell-nix.tool compiler-nix-name "ghcid" {
     version = "0.8.7";
