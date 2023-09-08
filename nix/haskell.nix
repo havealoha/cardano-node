@@ -135,7 +135,7 @@ let
             packages.entropy.package.buildType = lib.mkForce "Simple";
             packages.HsOpenSSL.package.buildType = lib.mkForce "Simple";
           })
-          ({ lib, pkgs, ... }: lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
+          ({ lib, pkgs, ... }: { # lib.mkIf (pkgs.stdenv.hostPlatform.isWindows) {
             # lib:ghc is a bit annoying in that it comes with it's own build-type:Custom, and then tries
             # to call out to all kinds of silly tools that GHC doesn't really provide.
             # For this reason, we try to get away without re-installing lib:ghc for now.
