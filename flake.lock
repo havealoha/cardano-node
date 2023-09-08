@@ -632,16 +632,15 @@
         "stackage": "stackage"
       },
       "locked": {
-        "lastModified": 1694090206,
-        "narHash": "sha256-15Rv9cnRKhOKwxwzHEX6esg5rsj+c2f3Pv4SyiC78E8=",
+        "lastModified": 1694159332,
+        "narHash": "sha256-Pxbgf2kv6IOqHqSk99F/GHnzI9hdym95dn9qrdpQsQY=",
         "owner": "input-output-hk",
         "repo": "haskell.nix",
-        "rev": "035d528422856800daabc7237b16139ff5a1961b",
+        "rev": "3e4262ca9692c999df1eb8d826b82705da868bdf",
         "type": "github"
       },
       "original": {
         "owner": "input-output-hk",
-        "ref": "angerman/fix-win-reloc",
         "repo": "haskell.nix",
         "type": "github"
       }
