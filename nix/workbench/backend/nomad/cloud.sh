@@ -466,10 +466,15 @@ allocate-run-nomadcloud() {
       ## - memory.totalbytes    = 16300142592
       ## Pesimistic: 1,798 MiB / 15,545 MiB Total
       ## Optimistic: 1,396 MiB / 15,545 MiB Total
+      #
+      # WARNING: Don't use more than roughly 15400, for example 15432, because
+      # some clients show a couple bytes less available and Nomad chooses a
+      # client for that tasks and ignores the datacenter affinities, tasks end
+      # running in any datacenter/region!
       local producer_resources='{
           "cores":      8
-        , "memory":     13000
-        , "memory_max": 15000
+        , "memory":     15400
+        , "memory_max": 32000
       }'
       # Set this for every non-explorer node
         jq \
@@ -507,8 +512,8 @@ allocate-run-nomadcloud() {
       # client named "ip-10-24-30-90.eu-central-1.compute.internal"
       local explorer_resources='{
           "cores":      16
-        , "memory":     29000
-        , "memory_max": 31000
+        , "memory":     32000
+        , "memory_max": 64000
       }'
         jq \
           --argjson resources "${explorer_resources}" \
