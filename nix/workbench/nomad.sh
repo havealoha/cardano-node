@@ -337,7 +337,7 @@ wb_nomad() {
               local key_path="${ssh_dir}"/server.id_ed25519
               if ! test -f "${key_path}"
               then
-                ssh-keygen -t ed25519 -f "${key_path}" -C "" -N ""
+                ssh-keygen -t ed25519 -f "${key_path}" -C "" -N "" >/dev/null
               fi
               echo "${key_path}"
             ;;
@@ -346,7 +346,7 @@ wb_nomad() {
               local key_path="${ssh_dir}"/user.id_ed25519
               if ! test -f "${key_path}"
               then
-                ssh-keygen -t ed25519 -f "${key_path}" -C "" -N ""
+                ssh-keygen -t ed25519 -f "${key_path}" -C "" -N "" >/dev/null
               fi
               echo "${key_path}"
             ;;
