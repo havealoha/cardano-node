@@ -2000,6 +2000,7 @@ instance ToJSON NodeToNodeVersion where
   toJSON NodeToNodeV_10 = Number 10
   toJSON NodeToNodeV_11  = Number 11
   toJSON NodeToNodeV_12  = Number 12
+  toJSON NodeToNodeV_13  = Number 13
 
 instance FromJSON NodeToNodeVersion where
   parseJSON (Number 7) = return NodeToNodeV_7
@@ -2007,6 +2008,8 @@ instance FromJSON NodeToNodeVersion where
   parseJSON (Number 9) = return NodeToNodeV_9
   parseJSON (Number 10) = return NodeToNodeV_10
   parseJSON (Number 11) = return NodeToNodeV_11
+  parseJSON (Number 12) = return NodeToNodeV_12
+  parseJSON (Number 13) = return NodeToNodeV_13
   parseJSON (Number x) = fail ("FromJSON.NodeToNodeVersion: unsupported node-to-node protocol version " ++ show x)
   parseJSON x          = fail ("FromJSON.NodeToNodeVersion: error parsing NodeToNodeVersion: " ++ show x)
 
