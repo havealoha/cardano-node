@@ -2670,6 +2670,7 @@ backend_nomad() {
         "$@"
     ;;
 
+    # Generic function, tries all known runtime log files names.
     task-exec-program-run-files-tar-zstd )
       local usage="USAGE: wb backend pass $op RUN-DIR TASK-NAME"
       local dir=${1:?$usage}; shift
@@ -2687,27 +2688,28 @@ backend_nomad() {
       # tar (child): xz: Cannot exec: No such file or directory
       # tar (child): Error is not recoverable: exiting now
       # Code example of the files needed: https://github.com/input-output-hk/cardano-ops/blob/bench-master/bench/bench.sh#L646-L670
-      backend_nomad task-exec "${dir}" "${task}"         \
-        "${bash_path}" -c                                \
-        "                                                \
-          \"${find_path}\" \"${prog_dir}\"               \
-            -mindepth 1 -maxdepth 1 -type f              \
-            \(                                           \
-                 -name "exit_code"                       \
-              -o -name "stdout"                          \
-              -o -name "stderr"                          \
-              -o -name "*.prof"                          \
-              -o -name "*.eventlog"                      \
-              -o -name "*.gcstats"                       \
-              -o -name "*.log"                           \
-              -o -name "start.sh.debug"                  \
-            \)                                           \
-            -printf \"%P\\n\"                            \
-        |                                                \
-          \"${tar_path}\" --create                       \
-            --directory=\"${prog_dir}\" --files-from=-   \
-        |                                                \
-          \"${cat_path}\"                                \
+      backend_nomad task-exec "${dir}" "${task}"          \
+        "${bash_path}" -c                                 \
+        "                                                 \
+          \"${find_path}\" \"${prog_dir}\"                \
+            -mindepth 1 -maxdepth 1 -type f               \
+            \(                                            \
+                 -name "exit_code"                        \
+              -o -name "stdout"                           \
+              -o -name "stderr"                           \
+              -o -name "*.prof"                           \
+              -o -name "*.eventlog"                       \
+              -o -name "*.gcstats"                        \
+              -o -name "*.log"                            \
+              -o -name "protocol-parameters-queried.json" \
+              -o -name "start.sh.debug"                   \
+            \)                                            \
+            -printf \"%P\\n\"                             \
+        |                                                 \
+          \"${tar_path}\" --create                        \
+            --directory=\"${prog_dir}\" --files-from=-    \
+        |                                                 \
+          \"${cat_path}\"                                 \
         "
     ;;
 
