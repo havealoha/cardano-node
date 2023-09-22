@@ -76,8 +76,9 @@ let
       supervisor = containerSpecs.containerPkgs.supervisor.nix-store-path;
     in escapeTemplate
       ''
-      # Store the entrypoint's envars in a file for debugging purposes.
-      ${coreutils}/bin/env > /local/entrypoint.env
+      # Store entrypoint's envars and "uname" in a file for debugging purposes.
+      ${coreutils}/bin/env      > /local/entrypoint.env
+      ${coreutils}/bin/uname -a > /local/entrypoint.uname
 
       # Only needed for "exec" ?
       if test "''${TASK_DRIVER}" = "exec"

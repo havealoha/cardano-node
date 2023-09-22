@@ -2395,6 +2395,10 @@ backend_nomad() {
       backend_nomad task-file-contents "${dir}" "${node}" \
         /local/entrypoint.env                             \
       > "${dir}"/nomad/"${node}"/entrypoint.env
+      # Dynamically generated file with system info!
+      backend_nomad task-file-contents "${dir}" "${node}" \
+        /local/entrypoint.uname                           \
+      > "${dir}"/nomad/"${node}"/entrypoint.uname
       # Dynamically generated file with all the services/addresses found!
       backend_nomad task-file-contents "${dir}" "${node}" \
         /local/networking.json                            \
@@ -2443,6 +2447,10 @@ backend_nomad() {
           backend_nomad task-file-contents "${dir}" "tracer" \
             /local/entrypoint.env                            \
           > "${dir}"/nomad/tracer/entrypoint.env
+          # Dynamically generated file with system info!
+          backend_nomad task-file-contents "${dir}" "tracer" \
+            /local/entrypoint.uname                           \
+          > "${dir}"/nomad/tracer/entrypoint.uname
           # Dynamically generated file with all the services/addresses found!
           backend_nomad task-file-contents "${dir}" "tracer" \
             /local/networking.json                           \
