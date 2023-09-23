@@ -226,6 +226,43 @@ setenv-defaults-nomadcloud() {
     export AWS_ACCESS_KEY_ID=$(echo "${aws_credentials}" | jq -r .data.access_key)
     export AWS_SECRET_ACCESS_KEY=$(echo "${aws_credentials}" | jq -r .data.secret_key)
   fi
+}
+
+# Sub-backend specific allocs and calls `backend_nomad`'s `allocate-run`.
+allocate-run-nomadcloud() {
+  local usage="USAGE: wb backend $op RUN-DIR"
+  local dir=${1:?$usage}; shift
+
+  # Copy the container specs file (container-specs.json)
+  # This is the output file of the Nix derivation
+  local profile_container_specs_file=$(envjqr 'profile_container_specs_file')
+  # Create a nicely sorted and indented copy
+  jq . "${profile_container_specs_file}" > "${dir}"/container-specs.json
+
+  # Create nomad folder and copy the Nomad job spec file to run.
+  mkdir -p "${dir}"/nomad
+  if echo "${WB_SHELL_PROFILE}" | grep --quiet "cw-perf"
+  then
+    jq -r ".nomadJob.cloud.ssh"                  \
+      "${dir}"/container-specs.json              \
+    > "${dir}"/nomad/nomad-job.json
+  else
+    jq -r ".nomadJob.cloud.nomadExec"            \
+      "${dir}"/container-specs.json              \
+    > "${dir}"/nomad/nomad-job.json
+  fi
+  # The job file is "slightly" modified (jq) to suit the running environment.
+  if test -n "${NOMAD_NAMESPACE:-}"
+  then
+    # This sets only the global namespace, the job level namespace. Not groups!
+    backend_nomad allocate-run-nomad-job-patch-namespace "${dir}" "${NOMAD_NAMESPACE}"
+  else
+    # Empty the global namespace
+    backend_nomad allocate-run-nomad-job-patch-namespace "${dir}"
+  fi
+  # Will set the flake URIs from ".installable" in container-specs.json
+  backend_nomad allocate-run-nomad-job-patch-nix "${dir}"
+
   # The Nomad job spec will contain links ("nix_installables" stanza) to
   # the Nix Flake outputs it needs inside the container, these are
   # refereced with a GitHub commit ID inside the "container-specs" file.
@@ -270,46 +307,6 @@ setenv-defaults-nomadcloud() {
   fi
   # There are so many assumptions that I like having the user confirm them!
   read -p "Hit enter to continue ..."
-}
-
-# Sub-backend specific allocs and calls `backend_nomad`'s `allocate-run`.
-allocate-run-nomadcloud() {
-  local usage="USAGE: wb backend $op RUN-DIR"
-  local dir=${1:?$usage}; shift
-
-  # Copy the container specs file (container-specs.json)
-  # This is the output file of the Nix derivation
-  local profile_container_specs_file=$(envjqr 'profile_container_specs_file')
-  # Create a nicely sorted and indented copy
-  jq . "${profile_container_specs_file}" > "${dir}"/container-specs.json
-
-  # Create nomad folder and copy the Nomad job spec file to run.
-  mkdir -p "${dir}"/nomad
-  # Select which version of the Nomad job spec file we are running and
-  # create a nicely sorted and indented copy it "nomad/nomad-job.json".
-  # Only if running on "perf" exclusive nodes we use SSH, if not `nomad exec`,
-  # because we need to have an exclusive port open for us.
-  if echo "${WB_SHELL_PROFILE}" | grep --quiet "cw-perf"
-  then
-    jq -r ".nomadJob.cloud.ssh"                  \
-      "${dir}"/container-specs.json              \
-    > "${dir}"/nomad/nomad-job.json
-  else
-    jq -r ".nomadJob.cloud.nomadExec"            \
-      "${dir}"/container-specs.json              \
-    > "${dir}"/nomad/nomad-job.json
-  fi
-  # The job file is "slightly" modified (jq) to suit the running environment.
-  if test -n "${NOMAD_NAMESPACE:-}"
-  then
-    # This sets only the global namespace, the job level namespace. Not groups!
-    backend_nomad allocate-run-nomad-job-patch-namespace "${dir}" "${NOMAD_NAMESPACE}"
-  else
-    # Empty the global namespace
-    backend_nomad allocate-run-nomad-job-patch-namespace "${dir}"
-  fi
-  # Will set the flake URIs from ".installable" in container-specs.json
-  backend_nomad allocate-run-nomad-job-patch-nix "${dir}"
 
   # Set the placement info and resources accordingly
   local nomad_job_name
