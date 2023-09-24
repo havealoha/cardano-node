@@ -331,6 +331,8 @@ let
                 doHaddock = false;
                 packages.cardano-cli.enableShared = false;
                 packages.cardano-cli.enableStatic = true;
+                # Needed for TH code in cardano-cli
+                packages.cardano-git-rev.enableShared = lib.mkForce true;
               };
           })
           ({ lib, pkgs, ... }: lib.mkIf (pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform) {
@@ -338,6 +340,12 @@ let
             packages.Win32.components.library.build-tools = lib.mkForce [ ];
             packages.terminal-size.components.library.build-tools = lib.mkForce [ ];
             packages.network.components.library.build-tools = lib.mkForce [ ];
+          })
+          ({ ... }: {
+            # TODO: requires
+            # https://github.com/input-output-hk/ouroboros-network/pull/4673 or
+            # a newer ghc
+            packages.ouroboros-network-framework.doHaddock = false;
           })
           # TODO add flags to packages (like cs-ledger) so we can turn off tests that will
           # not build for windows on a per package bases (rather than using --disable-tests).
