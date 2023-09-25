@@ -365,6 +365,11 @@ def all_profile_variants:
       | .genesis.pparamsEpoch         = timeline::lastKnownEpoch
       | .genesis.pparamsOverlays      = ["v8-preview", "doublebudget"]
     ) as $costmodel_v8_preview_doubleb
+  |
+    ({}
+      | .genesis.pparamsEpoch         = timeline::lastKnownEpoch
+      | .genesis.pparamsOverlays      = ["mimic-ops"]
+    ) as $mimic_ops_params
   ##
   ### Definition vocabulary:  node config variants
   ##
@@ -666,9 +671,17 @@ def all_profile_variants:
     { name: "ci-test-cw-qa"
     , desc: "ci-test, but on Cardano World QA"
     }
+  , $citest_base * $cardano_world_qa * $mimic_ops_params *
+    { name: "ci-test-cw-qa-mimicops"
+    , desc: "ci-test, but on Cardano World QA and similar to cardano-ops"
+    }
   , $citest_base * $nomad_perf *
     { name: "ci-test-nomadperf"
     , desc: "ci-test, but on P&T cluster"
+    }
+  , $citest_base * $nomad_perf * $mimic_ops_params *
+    { name: "ci-test-nomadperf-mimicops"
+    , desc: "ci-test, but on P&T cluster and similar to cardano-ops"
     }
 
   ## CI variants: bench duration, 15 blocks
@@ -758,6 +771,9 @@ def all_profile_variants:
 ## P&T Nomad cluster: 52 nodes, 3 regions, value variant
   , $nomad_perf_base * $nomad_perf * $costmodel_v8_preview *
     { name: "value-nomadperf"
+    }
+  , $nomad_perf_base * $nomad_perf * $mimic_ops_params *
+    { name: "value-nomadperf-mimicops"
     }
 
 ## Model value variant: 7 epochs (128GB RAM needed; 16GB for testing locally)
