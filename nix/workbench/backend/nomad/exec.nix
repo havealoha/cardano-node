@@ -37,7 +37,7 @@ let
       vendorSha256 = "sha256-JQRpsQhq5r/QcgFwtnptmvnjBEhdCFrXFrTKkJioL3A=";
     });
   in
-    [ nomad-sre
+    [ (__getFlake "github:input-output-hk/cardano-perf/7588030").packages.x86_64-linux.nomad
       # The HTTP server to upload/download the genesis tar file in a local env.
       pkgs.webfs
     ]

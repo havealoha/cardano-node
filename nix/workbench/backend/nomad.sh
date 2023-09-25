@@ -2851,9 +2851,11 @@ nomad_create_server_config() {
 # to a geographic region, for example us, with potentially multiple zones, which
 # map to datacenters such as us-west and us-east.
 region = "global"
-# Specifies the data center of the local agent. All members of a datacenter
-# should share a local LAN connection.
-# Use one of "eu-central-1", "eu-west-1" or "us-east-2" to mimic SRE
+# Specifies the data center of the local agent. A datacenter is an abstract
+# grouping of clients within a region. Clients are not required to be in the
+# same datacenter as the servers they are joined with, but do need to be in the
+# same region.
+# Use one of "eu-central-1" or "us-east-2" to mimic SRE.
 datacenter = "eu-central-1"
 # Specifies the name of the local node. This value is used to identify
 # individual agents. When specified on a server, the name must be unique within
@@ -2867,95 +2869,21 @@ name = "workbench-nomad-server-${name}"
 # information. Server nodes use this directory to store cluster state, including
 # the replicated log and snapshot data. This must be specified as an absolute
 # path.
-data_dir  = "${state_dir}/data"
+data_dir = "${state_dir}/data"
 
-# Network:
-##########
-# Specifies which address the Nomad agent should bind to for network services,
-# including the HTTP interface as well as the internal gossip protocol and RPC
-# mechanism. This should be specified in IP format, and can be used to easily
-# bind all network services to the same address. It is also possible to bind the
-# individual services to different addresses using the "addresses" configuration
-# option. Dev mode (-dev) defaults to localhost.
-bind_addr = "127.0.0.1"
-# Specifies the network ports used for different services required by the Nomad
-# agent.
-ports = {
-  # The port used to run the HTTP server.
-  http = ${http_port}
-  # The port used for internal RPC communication between agents and servers, and
-  # for inter-server traffic for the consensus algorithm (raft).
-  rpc  = ${rpc_port}
-  # The port used for the gossip protocol for cluster membership. Both TCP and
-  # UDP should be routable between the server nodes on this port.
-  serf = ${serv_port}
-}
-# Specifies the advertise address for individual network services. This can be
-# used to advertise a different address to the peers of a server or a client
-# node to support more complex network configurations such as NAT. This
-# configuration is optional, and defaults to the bind address of the specific
-# network service if it is not provided. Any values configured in this stanza
-# take precedence over the default "bind_addr".
-# If the bind address is 0.0.0.0 then the IP address of the default private
-# network interface advertised. The advertise values may include an alternate
-# port, but otherwise default to the port used by the bind address. The values
-# support go-sockaddr/template format.
-# Does not make ses to use advertise here or this way, but if not used (IDK):
-# > Failed to parse HTTP advertise address (, 127.0.0.1, 4646, false):
-# > Defaulting advertise to localhost is unsafe, please set advertise manually
-advertise {
-  # The address to advertise for the HTTP interface. This should be reachable by
-  # all the nodes from which end users are going to use the Nomad CLI tools.
-  http = "127.0.0.1"
-  # The address used to advertise to Nomad clients for connecting to Nomad
-  # servers for RPC. This allows Nomad clients to connect to Nomad servers from
-  # behind a NAT gateway. This address much be reachable by all Nomad client
-  # nodes. When set, the Nomad servers will use the advertise.serf address for
-  # RPC connections amongst themselves. Setting this value on a Nomad client has
-  # no effect.
-  rpc = "127.0.0.1"
-  # The address advertised for the gossip layer. This address must be reachable
-  # from all server nodes. It is not required that clients can reach this
-  # address. Nomad servers will communicate to each other over RPC using the
-  # advertised Serf IP and advertised RPC Port.
-  serf = "127.0.0.1"
-}
-# The tls stanza configures Nomad's TLS communication via HTTP and RPC to
-# enforce secure cluster communication between servers, clients, and between.
-tls {
-  # Specifies if TLS should be enabled on the HTTP endpoints on the Nomad agent,
-  # including the API.
-  http = false
-  # Specifies if TLS should be enabled on the RPC endpoints and Raft traffic
-  # between the Nomad servers. Enabling this on a Nomad client makes the client
-  # use TLS for making RPC requests to the Nomad servers.
-  rpc  = false
-  # Specifies agents should require client certificates for all incoming HTTPS
-  # requests. The client certificates must be signed by the same CA as Nomad.
-  verify_https_client = false
-  # Specifies if outgoing TLS connections should verify the server's hostname.
-  verify_server_hostname = false
-}
+EOF
 
-# Logging:
-##########
-# Specifies the verbosity of logs the Nomad agent will output. Valid log levels
-# include WARN, INFO, or DEBUG in increasing order of verbosity.
-log_level = "INFO"
-# Output logs in a JSON format.
-log_json = true
-# Specifies the path for logging. If the path does not includes a filename, the
-# filename defaults to nomad.log. This setting can be combined with
-# "log_rotate_bytes" and "log_rotate_duration" for a fine-grained log rotation
-# control.
-log_file = "${state_dir}/nomad.log"
-# Specifies if the agent should log to syslog. This option only works on Unix
-# based systems.
-enable_syslog = false
-# Specifies if the debugging HTTP endpoints should be enabled. These endpoints
-# can be used with profiling tools to dump diagnostic information about Nomad's
-# internals.
-enable_debug = false
+  nomad_create_agent_config_network             \
+    "${http_port}" "${rpc_port}" "${serv_port}" \
+  >> "${config_file}"
+
+  echo -e "\n" >> "${config_file}"
+
+  nomad_create_agent_config_log \
+    "${state_dir}/nomad.log"    \
+  >> "${config_file}"
+
+  cat >> "${config_file}" <<- EOF
 
 # Termination:
 ##############
@@ -2969,16 +2897,6 @@ leave_on_interrupt = true
 # should only be set to true on server agents if it is expected that a
 # terminated server instance will never join the cluster again.
 leave_on_terminate = true
-
-# Client:
-#########
-# Specifies configuration which is specific to the Nomad client.
-# https://developer.hashicorp.com/nomad/docs/configuration/client
-client {
-  # Specifies if client mode is enabled. All other client configuration options
-  # depend on this value.
-  enabled = false
-}
 
 # Server:
 #########
@@ -3028,44 +2946,20 @@ server {
   rejoin_after_leave = false
 }
 
-# Misc:
-#######
-# The vault stanza configures Nomad's integration with HashiCorp's Vault. When
-# configured, Nomad can create and distribute Vault tokens to tasks
-# automatically. For more information on the architecture and setup, please see
-# the Nomad and Vault integration documentation.
-vault {
-  # Specifies if the Vault integration should be activated.
+# Client:
+#########
+# Specifies configuration which is specific to the Nomad client.
+# https://developer.hashicorp.com/nomad/docs/configuration/client
+client {
+  # Specifies if client mode is enabled. All other client configuration options
+  # depend on this value.
   enabled = false
 }
-# The acl stanza configures the Nomad agent to enable ACLs and tunes various ACL
-# parameters. Learn more about configuring Nomad's ACL system in the Secure
-# Nomad with Access Control guide.
-acl {
-  # Specifies if ACL enforcement is enabled. All other ACL configuration options
-  # depend on this value. Note that the Nomad command line client will send
-  # requests for client endpoints such as alloc exec directly to Nomad clients
-  # whenever they are accessible. In this scenario, the client will enforce
-  # ACLs, so both servers and clients should have ACLs enabled.
-  enabled = false
-}
-# The audit stanza configures the Nomad agent to configure Audit logging
-# behavior. Audit logging is an Enterprise-only feature.
-audit {
-  # Specifies if audit logging should be enabled. When enabled, audit logging
-  # will occur for every request, unless it is filtered by a filter.
-  enabled = true
-}
-# The consul stanza configures the Nomad agent's communication with Consul for
-# service discovery and key-value integration. When configured, tasks can
-# register themselves with Consul, and the Nomad cluster can automatically
-# bootstrap itself.
-consul {
-}
-# Specifies if Nomad should not check for updates and security bulletins. This
-# defaults to true in Nomad Enterprise.
-disable_update_check = true
+
 EOF
+
+# Common misc config.
+nomad_create_agent_config_misc >> "${config_file}"
 }
 
 nomad_create_client_config() {
@@ -3078,7 +2972,11 @@ nomad_create_client_config() {
   else
     local podman_socket_path=""
   fi
-  local cni_plugins_path=$(dirname $(which bridge))
+  # TODO:
+  # Sets the search path that is used for CNI plugin discovery. Multiple paths can
+  # be searched using colon delimited paths
+  # cni_path = "${cni_plugins_path}"
+  # local cni_plugins_path=$(dirname $(which bridge))
   local state_dir=$(wb_nomad client state-dir-path "${name}")
   local config_file=$(wb_nomad client config-file-path "${name}")
   # Look for the running servers to connect to ("wired" in the config file).
@@ -3114,9 +3012,11 @@ nomad_create_client_config() {
 # to a geographic region, for example us, with potentially multiple zones, which
 # map to datacenters such as us-west and us-east.
 region = "global"
-# Specifies the data center of the local agent. All members of a datacenter
-# should share a local LAN connection.
-# Use one of "eu-central-1", "eu-west-1" or "us-east-2" to mimic SRE
+# Specifies the data center of the local agent. A datacenter is an abstract
+# grouping of clients within a region. Clients are not required to be in the
+# same datacenter as the servers they are joined with, but do need to be in the
+# same region.
+# Use one of "eu-central-1" or "us-east-2" to mimic SRE.
 datacenter = "eu-central-1"
 # Specifies the name of the local node. This value is used to identify
 # individual agents. When specified on a server, the name must be unique within
@@ -3130,92 +3030,25 @@ name = "workbench-nomad-client-${name}"
 # information. Server nodes use this directory to store cluster state, including
 # the replicated log and snapshot data. This must be specified as an absolute
 # path.
-data_dir  = "${state_dir}/data"
+data_dir = "${state_dir}/data"
 # Specifies the directory to use for looking up plugins. By default, this is the
 # top-level data_dir suffixed with "plugins", like "/opt/nomad/plugins". This
 # must be an absolute path.
-plugin_dir  = "${state_dir}/data/plugins"
+plugin_dir = "${state_dir}/data/plugins"
 
-# Network:
-##########
-# Specifies which address the Nomad agent should bind to for network services,
-# including the HTTP interface as well as the internal gossip protocol and RPC
-# mechanism. This should be specified in IP format, and can be used to easily
-# bind all network services to the same address. It is also possible to bind the
-# individual services to different addresses using the "addresses" configuration
-# option. Dev mode (-dev) defaults to localhost.
-bind_addr = "127.0.0.1"
-# Specifies the network ports used for different services required by the Nomad
-# agent.
-ports = {
-  # The port used to run the HTTP server.
-  http = ${http_port}
-  # The port used for internal RPC communication between agents and servers, and
-  # for inter-server traffic for the consensus algorithm (raft).
-  rpc  = ${rpc_port}
-}
-# Specifies the advertise address for individual network services. This can be
-# used to advertise a different address to the peers of a server or a client
-# node to support more complex network configurations such as NAT. This
-# configuration is optional, and defaults to the bind address of the specific
-# network service if it is not provided. Any values configured in this stanza
-# take precedence over the default "bind_addr".
-# If the bind address is 0.0.0.0 then the IP address of the default private
-# network interface advertised. The advertise values may include an alternate
-# port, but otherwise default to the port used by the bind address. The values
-# support go-sockaddr/template format.
-# Does not make ses to use advertise here or this way, but if not used (IDK):
-# > Failed to parse HTTP advertise address (, 127.0.0.1, 4646, false):
-# > Defaulting advertise to localhost is unsafe, please set advertise manually
-# Same thing for the RPC address, it's needed for the client.
-advertise {
-  # The address to advertise for the HTTP interface. This should be reachable by
-  # all the nodes from which end users are going to use the Nomad CLI tools.
-  http = "127.0.0.1"
-  # The address used to advertise to Nomad clients for connecting to Nomad
-  # servers for RPC. This allows Nomad clients to connect to Nomad servers from
-  # behind a NAT gateway. This address much be reachable by all Nomad client
-  # nodes. When set, the Nomad servers will use the advertise.serf address for
-  # RPC connections amongst themselves. Setting this value on a Nomad client has
-  # no effect.
-  rpc = "127.0.0.1"
-}
-# The tls stanza configures Nomad's TLS communication via HTTP and RPC to
-# enforce secure cluster communication between servers, clients, and between.
-tls {
-  # Specifies if TLS should be enabled on the HTTP endpoints on the Nomad agent,
-  # including the API.
-  http = false
-  # Specifies if TLS should be enabled on the RPC endpoints and Raft traffic
-  # between the Nomad servers. Enabling this on a Nomad client makes the client
-  # use TLS for making RPC requests to the Nomad servers.
-  rpc  = false
-  # Specifies agents should require client certificates for all incoming HTTPS
-  # requests. The client certificates must be signed by the same CA as Nomad.
-  verify_https_client = false
-  # Specifies if outgoing TLS connections should verify the server's hostname.
-  verify_server_hostname = false
-}
+EOF
 
-# Logging:
-##########
-# Specifies the verbosity of logs the Nomad agent will output. Valid log levels
-# include WARN, INFO, or DEBUG in increasing order of verbosity.
-log_level = "INFO"
-# Output logs in a JSON format.
-log_json = true
-# Specifies the path for logging. If the path does not includes a filename, the
-# filename defaults to nomad.log. This setting can be combined with
-# "log_rotate_bytes" and "log_rotate_duration" for a fine-grained log rotation
-# control.
-log_file = "${state_dir}/nomad.log"
-# Specifies if the agent should log to syslog. This option only works on Unix
-# based systems.
-enable_syslog = false
-# Specifies if the debugging HTTP endpoints should be enabled. These endpoints
-# can be used with profiling tools to dump diagnostic information about Nomad's
-# internals.
-enable_debug = false
+  nomad_create_agent_config_network             \
+    "${http_port}" "${rpc_port}" "${serv_port}" \
+  >> "${config_file}"
+
+  echo -e "\n" >> "${config_file}"
+
+  nomad_create_agent_config_log \
+    "${state_dir}/nomad.log"    \
+  >> "${config_file}"
+
+  cat >> "${config_file}" <<- EOF
 
 # Termination:
 ##############
@@ -3256,15 +3089,29 @@ client {
   # the top-level "data_dir" suffixed with "client", like "/opt/nomad/client".
   # This must be an absolute path.
   state_dir = "${state_dir}/data/client"
-  # Specifies an array of addresses to the Nomad servers this client should join.
-  # This list is used to register the client with the server nodes and advertise
-  # the available resources so that the agent can receive work. This may be
-  # specified as an IP address or DNS, with or without the port. If the port is
-  # omitted, the default port of 4647 is used.
-  servers = [ ${servers_addresses} ]
-  # Sets the search path that is used for CNI plugin discovery. Multiple paths can
-  # be searched using colon delimited paths
-  cni_path = "${cni_plugins_path}"
+
+  # Specifies how the Nomad client will connect to Nomad servers. The start_join
+  # field is not supported on the client. The retry_join fields may directly
+  # specify the server address or use go-discover syntax for auto-discovery.
+  # See the documentation for more detail.
+  server_join = {
+    # Specifies a list of server addresses to join. This is similar to
+    # start_join, but will continue to be attempted even if the initial join
+    # attempt fails, up to retry_max. Further, retry_join is available to both
+    # Nomad servers and clients, while start_join is only defined for Nomad
+    # servers. This is useful for cases where we know the address will become
+    # available eventually. Use retry_join with an array as a replacement for
+    # start_join, do not use both options.
+    retry_join = [ ${servers_addresses} ]
+    # Specifies the time to wait between retry join attempts.
+    retry_interval = "2s"
+    # Specifies the maximum number of join attempts to be made before exiting
+    # with a return code of 1. By default, this is set to 0 which is interpreted
+    # as infinite retries.
+    retry_max = "0"
+
+  }
+
   # Specifies the maximum amount of time a job is allowed to wait to exit.
   # Individual jobs may customize their own kill timeout, but it may not exceed
   # this value.
@@ -3457,9 +3304,178 @@ plugin "exec" {
 EOF
 fi
 
-cat >> "${config_file}" <<- EOF
+# Common misc config.
+nomad_create_agent_config_misc >> "${config_file}"
+}
+
+# Common misc config.
+nomad_create_agent_config_network() {
+  local http_port=$1
+  local rpc_port=$2
+  local serv_port=$3
+cat <<EOF
+# Network:
+##########
+
+# Specifies which address the Nomad agent should bind to for network services,
+# including the HTTP interface as well as the internal gossip protocol and RPC
+# mechanism. This should be specified in IP format, and can be used to easily
+# bind all network services to the same address. It is also possible to bind the
+# individual services to different addresses using the addresses configuration
+# option. Dev mode (-dev) defaults to localhost.
+# The value supports go-sockaddr/template format.
+bind_addr = "127.0.0.1"
+
+# Specifies the advertise address for individual network services. This can be
+# used to advertise a different address to the peers of a server or a client
+# node to support more complex network configurations such as NAT. This
+# configuration is optional, and defaults to the bind address of the specific
+# network service if it is not provided. Any values configured in this block
+# take precedence over the default bind_addr.
+# If the bind address is 0.0.0.0 then the IP address of the default private
+# network interface advertised. The advertise values may include an alternate
+# port, but otherwise default to the port used by the bind address.
+# The values support go-sockaddr/template format.
+advertise {
+  # The address to advertise for the HTTP interface. This should be reachable by
+  # all the nodes from which end users are going to use the Nomad CLI tools.
+  http = "127.0.0.1"
+  # The address used to advertise to Nomad clients for connecting to Nomad
+  # servers for RPC. This allows Nomad clients to connect to Nomad servers from
+  # behind a NAT gateway. This address much be reachable by all Nomad client
+  # nodes. When set, the Nomad servers will use the advertise.serf address for
+  # RPC connections amongst themselves. Setting this value on a Nomad client has
+  # no effect.
+  rpc = "127.0.0.1"
+  # The address advertised for the gossip layer. This address must be reachable
+  # from all server nodes. It is not required that clients can reach this
+  # address. Nomad servers will communicate to each other over RPC using the
+  # advertised Serf IP and advertised RPC Port.
+  serf = "127.0.0.1"
+}
+
+# Specifies the network ports used for different services required by the Nomad
+# agent.
+ports = {
+  # The port used to run the HTTP server.
+  http = ${http_port}
+  # The port used for internal RPC communication between agents and servers, and
+  # for inter-server traffic for the consensus algorithm (raft).
+  rpc  = ${rpc_port}
+  # The port used for the gossip protocol for cluster membership. Both TCP and
+  # UDP should be routable between the server nodes on this port.
+  serf = ${serv_port}
+}
+
+# Specifies configuration for TLS.
+# The tls block configures Nomad's TLS communication via HTTP and RPC to enforce
+# secure cluster communication between servers, clients, and between.
+tls {
+  # Specifies if mTLS should be enabled on the HTTP endpoints on the Nomad
+  # agent, including the API.
+  http = false
+  # Toggle the option to enable mTLS on the RPC endpoints and Raft traffic. When
+  # this setting is activated, it establishes protection both between Nomad
+  # servers and from the clients back to the servers, ensuring mutual
+  # authentication.
+  rpc  = false
+  # Specifies agents should require client certificates for all incoming HTTPS
+  # requests. The client certificates must be signed by the same CA as Nomad.
+  verify_https_client = false
+  # Specifies if outgoing TLS connections should verify the server's hostname.
+  verify_server_hostname = false
+}
+EOF
+}
+
+# Common misc config.
+nomad_create_agent_config_log() {
+  local log_file=$1
+cat <<EOF
+# Logging:
+##########
+# Specifies the verbosity of logs the Nomad agent will output. Valid log levels
+# include WARN, INFO, or DEBUG in increasing order of verbosity.
+log_level = "DEBUG"
+# Output logs in a JSON format.
+log_json = true
+# Specifies the path for logging. If the path does not includes a filename, the
+# filename defaults to nomad.log. This setting can be combined with
+# log_rotate_bytes and log_rotate_duration for a fine-grained log rotation
+# control.
+log_file = "${log_file}"
+# Specifies if the agent should log to syslog. This option only works on Unix
+# based systems. The log level inherits from the Nomad agent log set in
+# log_level
+enable_syslog = false
+# Specifies if the debugging HTTP endpoints should be enabled. These endpoints
+# can be used with profiling tools to dump diagnostic information about Nomad's
+# internals.
+enable_debug = false
+EOF
+}
+
+# Common misc config.
+nomad_create_agent_config_misc() {
+cat <<EOF
 # Misc:
 #######
+
+# Specifies configuration which is specific to ACLs.
+# The acl block configures the Nomad agent to enable ACLs and tunes various ACL
+# parameters. Learn more about configuring Nomad's ACL system in the Secure
+# Nomad with Access Control guide.
+# https://developer.hashicorp.com/nomad/tutorials/access-control
+acl {
+  # Specifies if ACL enforcement is enabled. All other ACL configuration options
+  # depend on this value. All agents should have the same value for this
+  # parameter. For example the Nomad command line will send requests for client
+  # endpoints such as alloc exec directly to Nomad clients whenever they are
+  # accessible. In this scenario, the client will enforce ACLs, so both servers
+  # and clients should have ACLs enabled.
+  enabled = false
+}
+
+# Enterprise-only. Specifies audit logging configuration.
+# The audit block configures the Nomad agent to configure Audit logging
+# behavior. Audit logging is an Enterprise-only feature.
+audit {
+  # Specifies if audit logging should be enabled. When enabled, audit logging
+  # will occur for every request, unless it is filtered by a filter.
+  enabled = true
+}
+
+# Specifies configuration for connecting to Consul.
+# The consul block configures the Nomad agent's communication with Consul for
+# service discovery and key-value integration. When configured, tasks can
+# register themselves with Consul, and the Nomad cluster can automatically
+# bootstrap itself.
+consul {
+  # Specifies if Nomad should advertise its services in Consul. The services are
+  # named according to server_service_name and client_service_name. Nomad
+  # servers and clients advertise their respective services, each tagged
+  # appropriately with either http or rpc tag. Nomad servers also advertise a
+  # serf tagged service.
+  auto_advertise = false
+  # Specifies if the Nomad clients should automatically discover servers in the
+  # same region by searching for the Consul service name defined in the
+  # server_service_name option. The search occurs if the client is not
+  # registered with any servers or it is unable to heartbeat to the leader of
+  # the region, in which case it may be partitioned and searches for other
+  # servers.
+  client_auto_join = false
+  # Specifies if the Nomad servers should automatically discover and join other
+  # Nomad servers by searching for the Consul service name defined in the
+  # server_service_name option. This search only happens if the server does not
+  # have a leader.
+  server_auto_join = false
+}
+
+# Specifies if Nomad should not check for updates and security bulletins. This
+# defaults to true in Nomad Enterprise.
+disable_update_check = true
+
+# Specifies configuration for connecting to Vault.
 # The vault stanza configures Nomad's integration with HashiCorp's Vault. When
 # configured, Nomad can create and distribute Vault tokens to tasks
 # automatically. For more information on the architecture and setup, please see
@@ -3468,33 +3484,6 @@ vault {
   # Specifies if the Vault integration should be activated.
   enabled = false
 }
-# The acl stanza configures the Nomad agent to enable ACLs and tunes various ACL
-# parameters. Learn more about configuring Nomad's ACL system in the Secure
-# Nomad with Access Control guide.
-acl {
-  # Specifies if ACL enforcement is enabled. All other ACL configuration options
-  # depend on this value. Note that the Nomad command line client will send
-  # requests for client endpoints such as alloc exec directly to Nomad clients
-  # whenever they are accessible. In this scenario, the client will enforce
-  # ACLs, so both servers and clients should have ACLs enabled.
-  enabled = false
-}
-# The audit stanza configures the Nomad agent to configure Audit logging
-# behavior. Audit logging is an Enterprise-only feature.
-audit {
-  # Specifies if audit logging should be enabled. When enabled, audit logging
-  # will occur for every request, unless it is filtered by a filter.
-  enabled = true
-}
-# The consul stanza configures the Nomad agent's communication with Consul for
-# service discovery and key-value integration. When configured, tasks can
-# register themselves with Consul, and the Nomad cluster can automatically
-# bootstrap itself.
-consul {
-}
-# Specifies if Nomad should not check for updates and security bulletins. This
-# defaults to true in Nomad Enterprise.
-disable_update_check = true
 EOF
 }
 
