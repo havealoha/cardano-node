@@ -667,7 +667,7 @@ def all_profile_variants:
   , $citest_base * $with_rtview *
     { name: "ci-test-rtview"
     }
-  , $citest_base * $cardano_world_qa *
+  , $citest_base * $cardano_world_qa * $costmodel_v8_preview *
     { name: "ci-test-cw-qa"
     , desc: "ci-test, but on Cardano World QA"
     }

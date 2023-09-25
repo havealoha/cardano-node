@@ -1,13 +1,24 @@
 def delta:
 {
-  "alonzo": {
-    "coinsPerUTxOByte": 4310
+
+  "maxBlockExUnits": {
+    "exUnitsMem": 50000000,
+    "exUnitsSteps": 40000000000
   },
+  "maxTxExUnits": {
+    "exUnitsMem": 10000000,
+    "exUnitsSteps": 10000000000
+  },
+
   "shelley": {
+    "maxBlockBodySize": 88000,
+    "minPoolCost": 0,
     "protocolVersion": {
       "major": 5
     },
+
   },
+
   "costModels": {
     "PlutusV1": {
       "addInteger-cpu-arguments-intercept": 205665,

@@ -355,32 +355,32 @@
   "extraPraosEntropy": null,
   "maxBlockBodySize": 90112,
   "maxBlockExecutionUnits": {
-    "memory": 62000000,
+    "memory": 50000000,
     "steps": 40000000000
   },
   "maxBlockHeaderSize": 1100,
   "maxCollateralInputs": 3,
   "maxTxExecutionUnits": {
-    "memory": 14000000,
+    "memory": 10000000,
     "steps": 10000000000
   },
   "maxTxSize": 16384,
   "maxValueSize": 5000,
   "minPoolCost": 340000000,
   "minUTxOValue": null,
-  "monetaryExpansion": 0.003,
-  "poolPledgeInfluence": 0.3,
+  "monetaryExpansion": 0,
+  "poolPledgeInfluence": 0,
   "poolRetireMaxEpoch": 18,
   "protocolVersion": {
     "major": 8,
     "minor": 0
   },
-  "stakeAddressDeposit": 2000000,
-  "stakePoolDeposit": 500000000,
-  "stakePoolTargetNum": 500,
-  "treasuryCut": 0.2,
-  "txFeeFixed": 155381,
-  "txFeePerByte": 44,
+  "stakeAddressDeposit": 0,
+  "stakePoolDeposit": 0,
+  "stakePoolTargetNum": 51,
+  "treasuryCut": 0,
+  "txFeeFixed": 0,
+  "txFeePerByte": 1,
   "utxoCostPerByte": 4310,
   "utxoCostPerWord": null
 }

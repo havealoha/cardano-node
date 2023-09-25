@@ -18,16 +18,16 @@ def cardano_api_pparams_to_geneses(api; desc):
         }
       }
     , maxBlockExUnits:
-      { exUnitsMem:          api.maxBlockExecutionUnits.memory
-      , exUnitsSteps:        api.maxBlockExecutionUnits.steps
+      { exUnitsMem:          50000000
+      , exUnitsSteps:        40000000000
       }
     , maxCollateralInputs:   api.maxCollateralInputs
     , maxTxExUnits:
-      { exUnitsMem:          api.maxTxExecutionUnits.memory
-      , exUnitsSteps:        api.maxTxExecutionUnits.steps
+      { exUnitsMem:          10000000
+      , exUnitsSteps:        10000000000
       }
     , maxValueSize:          api.maxValueSize
-    , coinsPerUTxOByte:      api.utxoCostPerByte
+    , coinsPerUTxOByte:      4310
     }
     * if api.utxoCostPerWord == null then {} else
     { lovelacePerUTxOWord:   api.utxoCostPerWord
@@ -43,16 +43,16 @@ def cardano_api_pparams_to_geneses(api; desc):
     , maxTxSize:             api.maxTxSize
     , minPoolCost:           api.minPoolCost
     , minUTxOValue:          api.minUTxOValue
-    , rho:                   api.monetaryExpansion
-    , a0:                    api.poolPledgeInfluence
+    , rho:                   0
+    , a0:                    0
     , eMax:                  api.poolRetireMaxEpoch
     , protocolVersion:       api.protocolVersion
-    , keyDeposit:            api.stakeAddressDeposit
-    , poolDeposit:           api.stakePoolDeposit
-    , nOpt:                  api.stakePoolTargetNum
-    , tau:                   api.treasuryCut
-    , minFeeB:               api.txFeeFixed
-    , minFeeA:               api.txFeePerByte
+    , keyDeposit:            0
+    , poolDeposit:           0
+    , nOpt:                  51
+    , tau:                   0
+    , minFeeB:               0
+    , minFeeA:               1
     }
     * if api.decentralisation == null then {} else
     { decentralisationParam: api.decentralisation
