@@ -193,6 +193,156 @@ case "$op" in
               --genesis-dir "$dir"/ $(jq '.cli_args.createSpec | join(" ")' "$profile_json" --raw-output)
         )
         verbose "genesis" "$(colorise cardano-cli genesis create ${create_args[*]})"
+
+
+
+
+
+
+
+
+
+#    "maxBlockExecutionUnits": {					    "maxBlockExecutionUnits": {
+#        "memory": 50000000,				      |	        "memory": 62000000,
+#        "steps": 40000000000					        "steps": 40000000000
+#    },								    },
+          jq \
+            '.maxBlockExUnits |= {"exUnitsMem": 50000000,"exUnitsSteps": 40000000000}' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.maxBlockExUnits |= {"exUnitsMem": 50000000,"exUnitsSteps": 40000000000}' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.maxBlockExUnits |= {"exUnitsMem": 50000000,"exUnitsSteps": 40000000000}' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.maxBlockExUnits |= {"exUnitsMem": 50000000,"exUnitsSteps": 40000000000}' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+#    "maxTxExecutionUnits": {					    "maxTxExecutionUnits": {
+#        "memory": 10000000,				      |	        "memory": 14000000,
+#        "steps": 10000000000					        "steps": 10000000000
+#    },								    },
+          jq \
+            '.maxTxExUnits |= {"exUnitsMem": 10000000,"exUnitsSteps": 10000000000}' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.maxTxExUnits |= {"exUnitsMem": 10000000,"exUnitsSteps": 10000000000}' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.maxTxExUnits |= {"exUnitsMem": 10000000,"exUnitsSteps": 10000000000}' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.maxTxExUnits |= {"exUnitsMem": 10000000,"exUnitsSteps": 10000000000}' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+#    "stakePoolTargetNum": 51,				      |	    "stakePoolTargetNum": 500,
+          jq \
+            '.protocolParams.nOpt |= 51' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.protocolParams.nOpt |= 51' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.protocolParams.nOpt |= 51' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.protocolParams.nOpt |= 51' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+#    "treasuryCut": 0,					      |	    "treasuryCut": 0.2,
+          jq \
+            '.protocolParams.tau |= 0' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.protocolParams.tau |= 0' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.protocolParams.tau |= 0' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.protocolParams.tau |= 0' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+#    "txFeeFixed": 0,					      |	    "txFeeFixed": 155381,
+          jq \
+            '.protocolParams.minFeeB |= 0' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.protocolParams.minFeeB |= 0' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.protocolParams.minFeeB |= 0' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.protocolParams.minFeeB |= 0' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+#    "txFeePerByte": 1,					      |	    "txFeePerByte": 44,
+          jq \
+            '.protocolParams.minFeeA |= 1' \
+            "${dir}"/genesis.alonzo.spec.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.spec.json
+          jq \
+            '.protocolParams.minFeeA |= 1' \
+            "${dir}"/genesis.alonzo.json \
+        | \
+          sponge "${dir}"/genesis.alonzo.json
+          jq \
+            '.protocolParams.minFeeA |= 1' \
+            "${dir}"/genesis-shelley.json \
+        | \
+          sponge "${dir}"/genesis-shelley.json
+          jq \
+            '.protocolParams.minFeeA |= 1' \
+            "${dir}"/genesis-shelley.spec.json \
+        | \
+          sponge "${dir}"/genesis-shelley.spec.json
+
+#    "stakeAddressDeposit": 0,				      |	    "stakeAddressDeposit": 2000000,
+#    "stakePoolDeposit": 0,				      |	    "stakePoolDeposit": 500000000,
+#    "utxoCostPerByte": 4310,				      |	    "utxoCostPerByte": 538,
+
+
+
+
+
         cardano-cli genesis create "${create_args[@]}" ||
             fail "failed:  $(colorise cardano-cli genesis create ${create_args[*]})"
 
