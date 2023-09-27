@@ -452,7 +452,7 @@ let
               # When using the dedicated P&T Nomad cluster on AWS we use public
               # IPs/routing, all the other cloud runs are behind a VPC/firewall.
               # Local runs just use 12.0.0.1.
-              if lib.strings.hasInfix "-perf" profileData.profileName
+              if lib.strings.hasInfix "-nomadperf" profileData.profileName
               then "\${attr.unique.platform.aws.public-ipv4}"
               else ""
             ;
@@ -1189,7 +1189,7 @@ let
       [
         # Address string to
         (
-          if lib.strings.hasInfix "-perf" profileData.profileName
+          if lib.strings.hasInfix "-nomadperf" profileData.profileName
           then ''--host-addr {{ env "attr.unique.platform.aws.local-ipv4" }}''
           else ''--host-addr 0.0.0.0''
         )
