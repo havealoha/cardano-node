@@ -1612,7 +1612,6 @@ backend_nomad() {
           touch "${dir}"/"${node}"/started
         else
           # Failed to start, mostly timeout before listening socket was found.
-          backend_nomad stop-cluster "${dir}"
           fatal "Node \"${node}\" startup did not succeed"
         fi
       fi
