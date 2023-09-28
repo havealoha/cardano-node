@@ -828,20 +828,20 @@ let
           //
           (if execTaskDriver
             then {
-              driver = "exec";
+              driver = "raw_exec";
 
               config = {
 
                 command = "${containerSpecs.containerPkgs.bashInteractive.nix-store-path}/bin/bash";
 
-                args = ["${task_workdir}/entrypoint.sh"];
+                args = ["local/entrypoint.sh"];
 
-                nix_installables =
-                  (lib.attrsets.mapAttrsToList
-                    (name: attr: attr.nix-store-path)
-                    containerSpecs.containerPkgs
-                  )
-                ;
+#                nix_installables =
+#                  (lib.attrsets.mapAttrsToList
+#                    (name: attr: attr.nix-store-path)
+#                    containerSpecs.containerPkgs
+#                  )
+#                ;
 
               };
             } else {
