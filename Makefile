@@ -98,7 +98,7 @@ PROFILES_CW_QA            := default-cw-qa ci-test-cw-qa ci-bench-cw-qa ci-test-
 # The dedicated P&T Nomad cluster on AWS
 # Cloud version of "default", "ci-test" and "ci-bench" plus value (52+explorer)
 # Not all local profiles are compatible or tested (yet) with a cloud runs
-PROFILES_NOMAD_PERF       := default-nomadperf ci-test-nomadperf ci-bench-nomadperf value-nomadperf ci-test-nomadperf-mimicops
+PROFILES_NOMAD_PERF       := default-nomadperf ci-test-nomadperf ci-bench-nomadperf value-nomadperf value-dense-nomadperf-mimicops ci-test-nomadperf-mimicops
 
 LOCAL_PROFILES += $(PROFILES_BASE)
 LOCAL_PROFILES += $(PROFILES_FAST)

@@ -185,6 +185,14 @@ def all_profile_variants:
       }
     } as $nomad_perf
   |
+    # nomad_perf using cardano-ops "dense" topology
+    { composition:
+      { locations:                      ["EU", "US", "AP"]
+      , topology:                       "dense"
+      , with_explorer:                  true
+      }
+    } as $nomad_perf_dense
+  |
   ##
   ### Definition vocabulary:  filtering
   ##
@@ -769,11 +777,14 @@ def all_profile_variants:
     }
 
 ## P&T Nomad cluster: 52 nodes, 3 regions, value variant
-  , $nomad_perf_base * $nomad_perf * $costmodel_v8_preview *
+  , $nomad_perf_base * $nomad_perf       * $costmodel_v8_preview *
     { name: "value-nomadperf"
     }
-  , $nomad_perf_base * $nomad_perf * $mimic_ops_params *
+  , $nomad_perf_base * $nomad_perf       * $mimic_ops_params     *
     { name: "value-nomadperf-mimicops"
+    }
+  , $nomad_perf_base * $nomad_perf_dense * $mimic_ops_params     *
+    { name: "value-dense-nomadperf-mimicops"
     }
 
 ## Model value variant: 7 epochs (128GB RAM needed; 16GB for testing locally)
