@@ -212,7 +212,7 @@ backend_nomad() {
 
     # Change the Nomad job name to the current run tag. This allows to run
     # multiple clusters simulatenously (as long as the network isolation mode
-    # and/or topology.json allows no port clashing)
+    # and/or topology.json is designed for no port clashing)
     allocate-run-nomad-job-patch-name )
       local usage="USAGE: wb backend $op RUN-DIR JOB-NAME"
       local dir=${1:?$usage};      shift

@@ -47,6 +47,7 @@ backend_nomadcloud() {
       backend_nomad allocate-run            "$@"
     ;;
 
+    # Called by `run.sh` without exit trap (unlike `scenario_setup_exit_trap`)!
     deploy-genesis )
       # It "overrides" completely `backend_nomad`'s `deploy-genesis`.
       deploy-genesis-nomadcloud             "$@"
@@ -824,6 +825,7 @@ allocate-run-nomadcloud() {
   read -p "Hit enter to continue ..."
 }
 
+# Called by `run.sh` without exit trap (unlike `scenario_setup_exit_trap`)!
 deploy-genesis-nomadcloud() {
   local usage="USAGE: wb backend $op RUN-DIR"
   local dir=${1:?$usage}; shift
@@ -866,13 +868,8 @@ deploy-genesis-nomadcloud() {
     msg "$(green "File \"${genesis_file_name}\" uploaded successfully")"
   else
     msg "$(red "FATAL: Upload to Amazon S3 failed")"
-    local nomad_agents_were_already_running=$(envjqr 'nomad_agents_were_already_running')
-    if test "${nomad_agents_were_already_running}" = "false"
-    then
-      wb_nomad agents stop "${server_name}" "${client_name}" "exec"
-    fi
     # Already "fatal" -> ignore errors!
-    backend_nomad stop-nomad-job "${dir}" || true
+    backend_nomad stop-nomad-job "${dir}" || msg "$(red "Failed to stop Nomad Job")"
     fatal "Failed to upload genesis"
   fi
 
@@ -883,7 +880,7 @@ deploy-genesis-nomadcloud() {
     # File kept for debugging!
     msg "$(red "FATAL: deploy-genesis-wget \"${dir}\" \"${uri}\"")"
     # Already "fatal" -> ignore errors!
-    backend_nomad stop-nomad-job "${dir}" || true
+    backend_nomad stop-nomad-job "${dir}" || msg "$(red "Failed to stop Nomad Job")"
     fatal "Deploy of genesis \"${uri}\" failed"
   else
     msg "$(green "Genesis \"${uri}\" deployed successfully")"
