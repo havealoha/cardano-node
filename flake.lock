@@ -848,15 +848,16 @@
         "sodium": "sodium"
       },
       "locked": {
-        "lastModified": 1693968598,
-        "narHash": "sha256-2wFadXHMgNYrF7N6jndfp3Ywm2G0r+QTPifrlzugkjo=",
+        "lastModified": 1695949666,
+        "narHash": "sha256-vkW1UAmXE45xypFCpzVEYBTxoc8BZAS4Er4+2j5s3+8=",
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "7d738e59d276336d1e02447e27b0373164d3bc88",
+        "rev": "532e399a2144485526f52ac00173c69a95363905",
         "type": "github"
       },
       "original": {
         "owner": "input-output-hk",
+        "ref": "hkm/no-blst-dll",
         "repo": "iohk-nix",
         "type": "github"
       }

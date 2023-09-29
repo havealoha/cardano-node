@@ -25,7 +25,7 @@
     };
     utils.url = "github:numtide/flake-utils";
     iohkNix = {
-      url = "github:input-output-hk/iohk-nix";
+      url = "github:input-output-hk/iohk-nix/hkm/no-blst-dll";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     ops-lib = {
