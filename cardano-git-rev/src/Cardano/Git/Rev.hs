@@ -10,7 +10,9 @@ module Cardano.Git.Rev
 import           Data.Text (Text)
 import qualified Data.Text as T
 
+#if !(defined(arm_HOST_ARCH) || defined(mingw32_HOST_OS))
 import           Cardano.Git.RevFromGit (gitRevFromGit)
+#endif
 import           GHC.Foreign (peekCStringLen)
 import           Foreign.C.String (CString)
 import           System.IO (utf8)
@@ -31,7 +33,7 @@ gitRev | gitRevEmbed /= zeroRev = gitRevEmbed
 
   -- Git revision found during compilation by running git. If
   -- git could not be run, then this will be empty.
-#if defined(arm_HOST_ARCH)
+#if defined(arm_HOST_ARCH) || defined(mingw32_HOST_OS)
   -- cross compiling to arm fails; due to a linker bug
   fromGit = ""
 #else
